@@ -3,7 +3,11 @@
 [![LaTeX Compilation](https://img.shields.io/badge/LaTeX-pdflatex-blue.svg)](https://www.latex-project.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Research Manuscript --- Requirements Engineering for AI (RE4AI)**  
+> **Author:** Tran Dinh Son  
+> **Student ID:** SE184005  
+> **Affiliation:** Information Technology, FPT University  
+> **Location:** Ho Chi Minh City, Vietnam  
+> **Email:** SE184005@fpt.edu.vn  
 > **Topic / Project:** NCKH - Nghiên cứu Khoa học  
 > **Date:** October 2026  
 
