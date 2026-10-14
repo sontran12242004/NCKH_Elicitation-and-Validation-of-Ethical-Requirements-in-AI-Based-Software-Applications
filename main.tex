@@ -1,244 +1,749 @@
+
 \documentclass[11pt,a4paper]{article}
+
+% ========================================
+% PACKAGES AND PAGE CONFIGURATION
+% ========================================
 \usepackage[a4paper,margin=2.4cm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
-\usepackage{amsmath,amssymb,booktabs,tabularx,array,enumitem,xcolor,hyperref}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
 \setlist[itemize]{leftmargin=*,topsep=2pt}
 \setlist[enumerate]{leftmargin=*,topsep=2pt}
-\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue,pdftitle={Eliciting, Specifying, and Validating Ethical Requirements in AI-Based Software Systems}}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={Eliciting, Specifying, and Validating Ethical Requirements in AI-Based Software Systems}
+}
+
 \setlength{\parskip}{0.4em}
 \setlength{\parindent}{0pt}
-\title{\textbf{Eliciting, Specifying, and Validating Ethical Requirements in AI-Based Software Systems: A Structured Literature Synthesis and Lifecycle Framework}}
-\author{Research Manuscript --- Requirements Engineering for AI}
-\date{October 2026}
-\begin{document}
-\maketitle
-\begin{abstract}
-AI-based software systems raise ethical concerns that are difficult to translate into implementable requirements. Although international guidance identifies values such as fairness, transparency, privacy, human oversight, safety, and accountability, practitioners still need methods for eliciting stakeholder concerns, specifying measurable acceptance criteria, and assessing compliance throughout development and operation. This paper presents a structured, literature-informed synthesis around three research questions: (RQ1) Which ethical requirements are relevant to AI-based software? (RQ2) How can these requirements be elicited from affected stakeholders? (RQ3) How can they be validated and verified across the AI lifecycle? We organize the literature into six ethical dimensions, compare complementary elicitation techniques, and propose a traceability-based workflow connecting stakeholder values to requirements, evaluation evidence, and operational monitoring. Mathematical metrics and sample acceptance criteria are provided as illustrations, not experimentally validated universal thresholds. The resulting framework is a conceptual synthesis; its practical efficacy remains to be established through case studies and empirical evaluation.
-\end{abstract}
-\noindent\textbf{Keywords:} AI requirements engineering; ethical requirements; responsible AI; stakeholder elicitation; validation and verification; MLOps.
 
+% ========================================
+% TITLE INFORMATION
+% ========================================
+\title{
+\textbf{
+Eliciting, Specifying, and Validating Ethical
+Requirements in AI-Based Software Systems:
+A Structured Literature Synthesis and
+Lifecycle Framework
+}
+}
+
+\author{
+    \textbf{Tran Dinh Son}\\
+    \textit{Information Technology, FPT University}\\
+    \textit{Ho Chi Minh City, Vietnam}\\
+    \textit{Student ID: SE184005}\\
+}
+
+\date{October 2026}
+
+\begin{document}
+
+\maketitle
+
+% ========================================
+% ABSTRACT
+% ========================================
+\begin{center}
+\textbf{Abstract}
+\end{center}
+
+\noindent
+AI-based software systems raise ethical concerns that are difficult to translate into implementable requirements. Although international guidance identifies values such as fairness, transparency, privacy, human oversight, safety, and accountability, practitioners still need methods for eliciting stakeholder concerns, specifying measurable acceptance criteria, and assessing compliance throughout development and operation. This paper presents a structured, literature-informed synthesis around three research questions: (RQ1) Which ethical requirements are relevant to AI-based software? (RQ2) How can these requirements be elicited from affected stakeholders? (RQ3) How can they be validated and verified across the AI lifecycle? We organize the literature into six ethical dimensions, compare complementary elicitation techniques, and propose a traceability-based workflow connecting stakeholder values to requirements, evaluation evidence, and operational monitoring. Mathematical metrics and sample acceptance criteria are provided as illustrations, not experimentally validated universal thresholds. The resulting framework is a conceptual synthesis; its practical efficacy remains to be established through case studies and empirical evaluation.
+
+\vspace{0.5em}
+
+\noindent\textbf{Keywords:}
+AI requirements engineering; ethical requirements; responsible AI; stakeholder elicitation; validation and verification; MLOps.
+
+% ========================================
+% 1. INTRODUCTION
+% ========================================
 \section{Introduction}
+
 AI-based systems increasingly support decisions in recruitment, credit, healthcare, and public services. Unlike conventional rule-driven software, machine-learning behavior depends on training data, modeling assumptions, and evolving deployment conditions. Consequently, accuracy alone is insufficient to characterize acceptable behavior: systems may exhibit unequal error rates, expose private information, produce opaque decisions, or reduce meaningful human control \cite{floridi2018,jobin2019,mehrabi2021}.
 
 AI ethics principles have become widespread, yet high-level commitments do not automatically become testable engineering artifacts. This \emph{principles-to-practice gap} arises when values such as fairness or autonomy lack identified stakeholders, operational definitions, responsibility assignments, and evaluation procedures \cite{mittelstadt2019,morley2020}. Requirements engineering (RE) offers a route from stakeholder expectations to traceable, assessable constraints; however, ethical requirements demand attention to people indirectly affected by system outputs and to trade-offs among competing values.
 
-This paper addresses three questions: \textbf{RQ1}: Which ethical requirements should be considered in AI-based software systems, and how can they be specified? \textbf{RQ2}: Which techniques can elicit ethical requirements from direct and indirect stakeholders? \textbf{RQ3}: How can these requirements be validated and verified during design, development, and operation?
+This paper addresses three questions:
 
-The paper makes three \emph{conceptual} contributions: (i) a six-dimension organization of ethical requirements with candidate measures; (ii) a comparative synthesis of elicitation techniques and their artifacts; and (iii) an integrated lifecycle process connecting values, acceptance criteria, testing evidence, and monitoring. No user study, systematic-review screening count, or benchmark experiment is claimed.
+\begin{itemize}
+    \item \textbf{RQ1:} Which ethical requirements should be considered in AI-based software systems, and how can they be specified?
 
+    \item \textbf{RQ2:} Which techniques can elicit ethical requirements from direct and indirect stakeholders?
+
+    \item \textbf{RQ3:} How can these requirements be validated and verified during design, development, and operation?
+\end{itemize}
+
+The paper makes three \emph{conceptual} contributions:
+
+\begin{enumerate}
+    \item A six-dimension organization of ethical requirements with candidate measures.
+
+    \item A comparative synthesis of elicitation techniques and their artifacts.
+
+    \item An integrated lifecycle process connecting values, acceptance criteria, testing evidence, and monitoring.
+\end{enumerate}
+
+No user study, systematic-review screening count, or benchmark experiment is claimed.
+
+% ========================================
+% 2. BACKGROUND AND RELATED WORK
+% ========================================
 \section{Background and Related Work}
-\subsection{Ethical requirements in requirements engineering}
-Traditional RE distinguishes functional behavior from quality constraints such as security, reliability, and maintainability. Ethical qualities in AI, including fairness and explainability, must instead be considered throughout data acquisition, model selection, interface design, deployment, and governance \cite{chung2000,horkoff2019,vogelsang2019}. A requirement is actionable only when its scope, affected population, measurable criterion, evaluation method, and accountable owner are specified.
 
-\subsection{Prior approaches and research gap}
-The analysis of global AI ethics guidelines by Jobin et al. identifies recurring values, but their implementation requires domain-specific choices \cite{jobin2019}. Value Sensitive Design (VSD) and the ECCOLA approach provide complementary means to surface stakeholder values and structure ethics discussions \cite{friedman2013,vakkuri2021}. Datasheets for Datasets and Model Cards document dataset and model properties, while the fairness literature offers quantitative measures of disparities \cite{gebru2021,mitchell2019,mehrabi2021}. Testing research further supplies techniques for assessing learned systems when a conventional expected-output oracle is unavailable \cite{chen2018,zhang2020}.
+\subsection{Ethical Requirements in Requirements Engineering}
 
-These contributions address different stages of the process. The gap targeted here is \emph{integration}: linking stakeholder-derived concerns to explicitly justified, context-sensitive requirements; producing evidence during development; and revising the requirements when monitoring or complaints reveal new risks. This is an architectural and methodological proposition, not evidence that existing methods have been empirically outperformed.
+Traditional RE distinguishes functional behavior from quality constraints such as security, reliability, and maintainability. Ethical qualities in AI, including fairness and explainability, must instead be considered throughout data acquisition, model selection, interface design, deployment, and governance \cite{chung2000,horkoff2019,vogelsang2019}.
 
+A requirement is actionable only when its scope, affected population, measurable criterion, evaluation method, and accountable owner are specified.
+
+\subsection{Prior Approaches and Research Gap}
+
+The analysis of global AI ethics guidelines by Jobin et al. identifies recurring values, but their implementation requires domain-specific choices \cite{jobin2019}.
+
+Value Sensitive Design (VSD) and the ECCOLA approach provide complementary means to surface stakeholder values and structure ethics discussions \cite{friedman2013,vakkuri2021}.
+
+Datasheets for Datasets and Model Cards document dataset and model properties, while the fairness literature offers quantitative measures of disparities \cite{gebru2021,mitchell2019,mehrabi2021}.
+
+Testing research further supplies techniques for assessing learned systems when a conventional expected-output oracle is unavailable \cite{chen2018,zhang2020}.
+
+These contributions address different stages of the process. The gap targeted here is \emph{integration}: linking stakeholder-derived concerns to explicitly justified, context-sensitive requirements; producing evidence during development; and revising the requirements when monitoring or complaints reveal new risks.
+
+This is an architectural and methodological proposition, not evidence that existing methods have been empirically outperformed.
+
+% ========================================
+% 3. RESEARCH METHODOLOGY
+% ========================================
 \section{Method and Scope of the Synthesis}
-This work uses a \emph{structured narrative literature synthesis} rather than claiming a completed systematic literature review. The source manuscript identifies IEEE Xplore, ACM Digital Library, ScienceDirect, SpringerLink, and Scopus as candidate databases and proposes a query spanning ``AI'', ``ethical requirements'', and ``requirements engineering''. However, it does not supply dated search logs, deduplicated records, screening decisions, or an included-study dataset. We therefore do not report invented study counts or characterize the corpus as exhaustively retrieved.
 
-The analytical procedure is organized around the three research questions: (1) extract recurring ethical values and their possible technical measures; (2) compare stakeholder-engagement and conflict-resolution techniques; and (3) map validation and verification evidence to development stages. Foundational literature and established guidance inform the resulting taxonomy and framework. Candidate requirements and thresholds below are \emph{illustrative design examples}; they must be selected and validated for a concrete application, population, and risk profile. A future systematic review should preregister the protocol, document searches and exclusion decisions, and assess study quality \cite{kitchenham2007,braun2006}.
+This work uses a \emph{structured narrative literature synthesis} rather than claiming a completed systematic literature review.
 
+The source manuscript identifies IEEE Xplore, ACM Digital Library, ScienceDirect, SpringerLink, and Scopus as candidate databases and proposes a query spanning ``AI'', ``ethical requirements'', and ``requirements engineering''.
+
+However, it does not supply dated search logs, deduplicated records, screening decisions, or an included-study dataset.
+
+We therefore do not report invented study counts or characterize the corpus as exhaustively retrieved.
+
+The analytical procedure is organized around the three research questions:
+
+\begin{enumerate}
+    \item Extract recurring ethical values and their possible technical measures.
+
+    \item Compare stakeholder-engagement and conflict-resolution techniques.
+
+    \item Map validation and verification evidence to development stages.
+\end{enumerate}
+
+Foundational literature and established guidance inform the resulting taxonomy and framework.
+
+Candidate requirements and thresholds below are \emph{illustrative design examples}; they must be selected and validated for a concrete application, population, and risk profile.
+
+A future systematic review should preregister the protocol, document searches and exclusion decisions, and assess study quality \cite{kitchenham2007,braun2006}.
+
+% ========================================
+% 4. RESEARCH QUESTION 1
+% ========================================
 \section{RQ1: Ethical Requirement Categories and Specifications}
-Ethical requirements should be expressed as context-dependent commitments that can be reviewed with affected parties and supported by test evidence. The following six categories are derived as an organizing synthesis, not asserted as a universally exhaustive or independent standard \cite{hleg2019,jobin2019}.
 
-\subsection{Fairness and non-discrimination}
-Fairness requires explicit identification of the decision, protected or otherwise relevant groups, ground-truth label, and potential harms. For binary predictions $\hat Y$ with group attribute $A$, the demographic-parity difference and equal-opportunity difference can be defined as
+Ethical requirements should be expressed as context-dependent commitments that can be reviewed with affected parties and supported by test evidence.
+
+The following six categories are derived as an organizing synthesis, not asserted as a universally exhaustive or independent standard \cite{hleg2019,jobin2019}.
+
+\subsection{Fairness and Non-Discrimination}
+
+Fairness requires explicit identification of the decision, protected or otherwise relevant groups, ground-truth label, and potential harms.
+
+For binary predictions $\hat{Y}$ with group attribute $A$, the demographic-parity difference and equal-opportunity difference can be defined as:
+
 \begin{align}
-\Delta_{\mathrm{DP}}&=\left|P(\hat Y=1\mid A=a_0)-P(\hat Y=1\mid A=a_1)\right|,\\
-\Delta_{\mathrm{EO}}&=\left|P(\hat Y=1\mid Y=1,A=a_0)-P(\hat Y=1\mid Y=1,A=a_1)\right|.
+\Delta_{\mathrm{DP}}
+&=
+\left|
+P(\hat{Y}=1\mid A=a_0)
+-
+P(\hat{Y}=1\mid A=a_1)
+\right|,
+\\
+\Delta_{\mathrm{EO}}
+&=
+\left|
+P(\hat{Y}=1\mid Y=1,A=a_0)
+-
+P(\hat{Y}=1\mid Y=1,A=a_1)
+\right|.
 \end{align}
-These measures answer different normative questions; satisfying one does not guarantee fairness overall. An example requirement is: ``On a predefined, sufficiently powered test sample, $\Delta_{\mathrm{EO}}\leq\epsilon_{\mathrm{EO}}$ for the specified groups, with uncertainty intervals reported.'' The threshold $\epsilon_{\mathrm{EO}}$ must be justified through impact assessment rather than assumed to be universally acceptable \cite{mehrabi2021,kleinberg2017}.
 
-\subsection{Transparency and explainability}
-Stakeholders may need information about system purpose, input data, limitations, oversight routes, and case-specific explanations. Techniques such as SHAP can attribute model predictions to input features, but feature attribution alone does not establish causal explanation or user comprehension \cite{arrieta2020,lundberg2017}. Example acceptance criteria include the presence of an intelligible decision notice, accessible appeal instructions, and independently evaluated explanation usefulness. Fidelity, comprehensibility, and latency should be assessed separately; any model-specific thresholds require evaluation.
+These measures answer different normative questions; satisfying one does not guarantee fairness overall.
 
-\subsection{Privacy and data governance}
-Data governance requirements encompass lawful collection, purpose limitation, access control, retention, provenance, consent management, and risk reduction against inference attacks. Where differential privacy is appropriate, a randomized mechanism $\mathcal M$ satisfies $(\varepsilon,\delta)$-differential privacy when for neighboring datasets $D,D'$ and each output set $S$,
+An example requirement is:
+
+``On a predefined, sufficiently powered test sample, $\Delta_{\mathrm{EO}}\leq\epsilon_{\mathrm{EO}}$ for the specified groups, with uncertainty intervals reported.''
+
+The threshold $\epsilon_{\mathrm{EO}}$ must be justified through impact assessment rather than assumed to be universally acceptable \cite{mehrabi2021,kleinberg2017}.
+
+\subsection{Transparency and Explainability}
+
+Stakeholders may need information about system purpose, input data, limitations, oversight routes, and case-specific explanations.
+
+Techniques such as SHAP can attribute model predictions to input features, but feature attribution alone does not establish causal explanation or user comprehension \cite{arrieta2020,lundberg2017}.
+
+Example acceptance criteria include the presence of an intelligible decision notice, accessible appeal instructions, and independently evaluated explanation usefulness.
+
+Fidelity, comprehensibility, and latency should be assessed separately; any model-specific thresholds require evaluation.
+
+\subsection{Privacy and Data Governance}
+
+Data governance requirements encompass lawful collection, purpose limitation, access control, retention, provenance, consent management, and risk reduction against inference attacks.
+
+Where differential privacy is appropriate, a randomized mechanism $\mathcal{M}$ satisfies $(\varepsilon,\delta)$-differential privacy when for neighboring datasets $D,D'$ and each output set $S$:
+
 \begin{equation}
-P(\mathcal M(D)\in S)\leq e^{\varepsilon}P(\mathcal M(D')\in S)+\delta.
+P(\mathcal{M}(D)\in S)
+\leq
+e^{\varepsilon}P(\mathcal{M}(D')\in S)
++\delta.
 \end{equation}
-The privacy parameters and adjacency definition must be documented and tied to the threat model; choosing a particular $\varepsilon$ does not by itself establish regulatory compliance \cite{dwork2014}. Model-deletion requests should distinguish deletion of stored personal data from the technically more difficult claim of removing influence from a trained model.
 
-\subsection{Human agency and oversight}
-The responsible actor, level of automated decision-making, escalation condition, contestability mechanism, and override authority should be specified. Human-in-the-loop and human-on-the-loop designs are alternatives whose adequacy depends on consequence severity and operator capacity \cite{hleg2019}. For instance, a system may route uncertain high-impact decisions to trained reviewers. A confidence score alone is insufficient unless the score has been calibrated and the handoff process has been validated.
+The privacy parameters and adjacency definition must be documented and tied to the threat model; choosing a particular $\varepsilon$ does not by itself establish regulatory compliance \cite{dwork2014}.
 
-\subsection{Technical robustness and safety}
-Requirements may address distribution shift, adversarial perturbations, failure recovery, and unsafe outputs. Validation must state the assumed threat model, test perturbation, target performance, and response to an out-of-distribution input. A fallback mode is not automatically safer; its behavior and operational hazards must also be assessed \cite{zhang2020}.
+Model-deletion requests should distinguish deletion of stored personal data from the technically more difficult claim of removing influence from a trained model.
 
-\subsection{Accountability and auditability}
-Accountability depends on traceability from stakeholder concern to approved requirement, evidence, owner, and remediation action. Audit records may capture model and dataset versions, decision timestamps, explanations where appropriate, and human interventions. Logging must respect privacy and retention obligations rather than indiscriminately retain raw personal features \cite{mitchell2019,reisman2018}.
+\subsection{Human Agency and Oversight}
 
+The responsible actor, level of automated decision-making, escalation condition, contestability mechanism, and override authority should be specified.
+
+Human-in-the-loop and human-on-the-loop designs are alternatives whose adequacy depends on consequence severity and operator capacity \cite{hleg2019}.
+
+For instance, a system may route uncertain high-impact decisions to trained reviewers.
+
+A confidence score alone is insufficient unless the score has been calibrated and the handoff process has been validated.
+
+\subsection{Technical Robustness and Safety}
+
+Requirements may address distribution shift, adversarial perturbations, failure recovery, and unsafe outputs.
+
+Validation must state the assumed threat model, test perturbation, target performance, and response to an out-of-distribution input.
+
+A fallback mode is not automatically safer; its behavior and operational hazards must also be assessed \cite{zhang2020}.
+
+\subsection{Accountability and Auditability}
+
+Accountability depends on traceability from stakeholder concern to approved requirement, evidence, owner, and remediation action.
+
+Audit records may capture model and dataset versions, decision timestamps, explanations where appropriate, and human interventions.
+
+Logging must respect privacy and retention obligations rather than indiscriminately retain raw personal features \cite{mitchell2019,reisman2018}.
+
+% ========================================
+% TABLE 1
+% ========================================
 \begin{table}[htbp]
-\centering\small
-\caption{Six categories of ethical requirements and candidate evidence (RQ1).}\label{tab:taxonomy}
+\centering
+\small
+
+\caption{Six categories of ethical requirements and candidate evidence (RQ1).}
+\label{tab:taxonomy}
+
 \begin{tabularx}{\linewidth}{p{2.6cm}X X}
 \toprule
-\textbf{Dimension} & \textbf{Example requirement focus} & \textbf{Potential evidence}\\\midrule
-Fairness & Define affected groups and acceptable disparity & Subgroup metrics, sample sizes, intervals\\
-Transparency & Communicate limitations and decision rationale & User comprehension evaluation, explanation tests\\
-Privacy & Limit data use and measurable disclosure risk & Privacy assessment, access audit, DP accounting\\
-Human oversight & Enable informed intervention and appeal & Escalation tests, operator studies, appeal records\\
-Safety & Handle foreseeable failures and distribution shift & Robustness tests, incident scenarios, OOD evaluation\\
-Accountability & Assign ownership and preserve traceability & Traceability matrix, versioning, audit review\\
+
+\textbf{Dimension}
+&
+\textbf{Example requirement focus}
+&
+\textbf{Potential evidence}
+\\
+\midrule
+
+Fairness
+&
+Define affected groups and acceptable disparity
+&
+Subgroup metrics, sample sizes, intervals
+\\
+
+Transparency
+&
+Communicate limitations and decision rationale
+&
+User comprehension evaluation, explanation tests
+\\
+
+Privacy
+&
+Limit data use and measurable disclosure risk
+&
+Privacy assessment, access audit, DP accounting
+\\
+
+Human oversight
+&
+Enable informed intervention and appeal
+&
+Escalation tests, operator studies, appeal records
+\\
+
+Safety
+&
+Handle foreseeable failures and distribution shift
+&
+Robustness tests, incident scenarios, OOD evaluation
+\\
+
+Accountability
+&
+Assign ownership and preserve traceability
+&
+Traceability matrix, versioning, audit review
+\\
+
 \bottomrule
 \end{tabularx}
 \end{table}
 
+% ========================================
+% 5. RESEARCH QUESTION 2
+% ========================================
 \section{RQ2: Eliciting Ethical Requirements from Stakeholders}
-\subsection{Stakeholder identification and representation}
-An ethical elicitation process should include (i) direct users and system operators, (ii) individuals whose opportunities or rights are affected by outputs, (iii) potentially underrepresented or vulnerable groups, and (iv) regulators, auditors, and domain specialists as relevant. Sampling plans should consider who may be excluded from conventional product interviews. Representation requires meaningful participation rather than merely listing affected groups \cite{friedman2013}.
 
-\subsection{Value Sensitive Design and value translation}
-VSD combines conceptual inquiry into relevant values, empirical investigation of stakeholder experiences, and technical assessment of potential designs \cite{friedman2013,umbrello2021}. A useful translation chain is
+\subsection{Stakeholder Identification and Representation}
+
+An ethical elicitation process should include:
+
+\begin{enumerate}
+    \item Direct users and system operators.
+
+    \item Individuals whose opportunities or rights are affected by outputs.
+
+    \item Potentially underrepresented or vulnerable groups.
+
+    \item Regulators, auditors, and domain specialists as relevant.
+\end{enumerate}
+
+Sampling plans should consider who may be excluded from conventional product interviews.
+
+Representation requires meaningful participation rather than merely listing affected groups \cite{friedman2013}.
+
+\subsection{Value Sensitive Design and Value Translation}
+
+VSD combines conceptual inquiry into relevant values, empirical investigation of stakeholder experiences, and technical assessment of potential designs \cite{friedman2013,umbrello2021}.
+
+A useful translation chain is:
+
 \[
-\text{Stakeholder value}\;\longrightarrow\;\text{contextual norm}\;\longrightarrow\;\text{system requirement}\;\longrightarrow\;\text{evaluation evidence}.
+\begin{gathered}
+\text{Stakeholder value}\\
+\downarrow\\
+\text{Contextual norm}\\
+\downarrow\\
+\text{System requirement}\\
+\downarrow\\
+\text{Evaluation evidence}
+\end{gathered}
 \]
-For example, the value ``fair access'' may lead to a context-specific nondiscrimination requirement, a justified group metric, and a test protocol. Interviews and focus groups can reveal harm scenarios that developers would otherwise miss.
 
-\subsection{Agile elicitation and misuse scenarios}
-ECCOLA-style cards can introduce ethical questions into planning workshops and connect concerns to backlog items \cite{vakkuri2021}. An ethical user story may be written as: ``As an affected applicant, I need to understand and contest an adverse automated recommendation so that an error can be corrected.'' It should be paired with independently testable acceptance criteria. Misuse cases and consequence scanning then examine malicious use, foreseeable error, exclusion, and downstream harms. These techniques complement, rather than replace, participation by affected communities.
+For example, the value ``fair access'' may lead to a context-specific nondiscrimination requirement, a justified group metric, and a test protocol.
 
-\subsection{Trade-offs and goal-oriented modeling}
-Fairness, privacy, explainability, and predictive performance can conflict. For example, measuring subgroup fairness may require access to sensitive attributes, while some formal fairness criteria cannot all be satisfied when base rates differ \cite{kleinberg2017}. Goal-oriented RE and softgoal models make the options and their positive or negative contributions explicit \cite{chung2000,yu1997}. The decision record should state whose interests were considered, which trade-off was accepted, the rationale, and the conditions for reassessment. It must not present a disputed normative choice as an automatic mathematical optimum.
+Interviews and focus groups can reveal harm scenarios that developers would otherwise miss.
 
+\subsection{Agile Elicitation and Misuse Scenarios}
+
+ECCOLA-style cards can introduce ethical questions into planning workshops and connect concerns to backlog items \cite{vakkuri2021}.
+
+An ethical user story may be written as:
+
+``As an affected applicant, I need to understand and contest an adverse automated recommendation so that an error can be corrected.''
+
+It should be paired with independently testable acceptance criteria.
+
+Misuse cases and consequence scanning then examine malicious use, foreseeable error, exclusion, and downstream harms.
+
+These techniques complement, rather than replace, participation by affected communities.
+
+\subsection{Trade-offs and Goal-Oriented Modeling}
+
+Fairness, privacy, explainability, and predictive performance can conflict.
+
+For example, measuring subgroup fairness may require access to sensitive attributes, while some formal fairness criteria cannot all be satisfied when base rates differ \cite{kleinberg2017}.
+
+Goal-oriented RE and softgoal models make the options and their positive or negative contributions explicit \cite{chung2000,yu1997}.
+
+The decision record should state whose interests were considered, which trade-off was accepted, the rationale, and the conditions for reassessment.
+
+It must not present a disputed normative choice as an automatic mathematical optimum.
+
+% ========================================
+% TABLE 2
+% ========================================
 \begin{table}[htbp]
-\centering\small
-\caption{Complementary elicitation techniques (RQ2).}\label{tab:elicitation}
+\centering
+\small
+
+\caption{Complementary elicitation techniques (RQ2).}
+\label{tab:elicitation}
+
 \begin{tabularx}{\linewidth}{p{2.8cm}X X}
 \toprule
-\textbf{Technique} & \textbf{Main output} & \textbf{Important limitation}\\\midrule
-Stakeholder mapping and VSD & Value map, affected groups, conflict register & Inclusion takes time and careful recruitment\\
-ECCOLA / ethics cards & Backlog concerns, candidate acceptance criteria & Workshops may miss absent stakeholder voices\\
-Misuse and consequence scenarios & Harm scenarios, controls, prohibited behaviors & Quality depends on threat and domain knowledge\\
-Softgoal / goal modeling & Documented alternatives and trade-offs & Large dependency models can be difficult to maintain\\
+
+\textbf{Technique}
+&
+\textbf{Main output}
+&
+\textbf{Important limitation}
+\\
+\midrule
+
+Stakeholder mapping and VSD
+&
+Value map, affected groups, conflict register
+&
+Inclusion takes time and careful recruitment
+\\
+
+ECCOLA / ethics cards
+&
+Backlog concerns, candidate acceptance criteria
+&
+Workshops may miss absent stakeholder voices
+\\
+
+Misuse and consequence scenarios
+&
+Harm scenarios, controls, prohibited behaviors
+&
+Quality depends on threat and domain knowledge
+\\
+
+Softgoal / goal modeling
+&
+Documented alternatives and trade-offs
+&
+Large dependency models can be difficult to maintain
+\\
+
 \bottomrule
 \end{tabularx}
 \end{table}
 
+% ========================================
+% 6. RESEARCH QUESTION 3
+% ========================================
 \section{RQ3: Validation and Verification Across the AI Lifecycle}
-\emph{Validation} examines whether requirements reflect the needs and values of the affected stakeholders; \emph{verification} examines whether the implemented system satisfies specified properties \cite{boehm1984}. Both should be repeated after significant changes to data, models, deployment conditions, or policy.
 
-\subsection{Before modeling: validate purposes, data, and requirements}
-At design time, teams should conduct stakeholder reviews, risk and impact assessments, dataset provenance checks, and feasibility analysis. A \emph{Datasheet for Datasets} can document collection and labeling limitations; an explicit requirements register should associate every ethical concern with a named owner and verification plan \cite{gebru2021,reisman2018}. Stakeholders should review not only numeric thresholds but also definitions of harm, acceptable exceptions, and remedy processes.
+\emph{Validation} examines whether requirements reflect the needs and values of the affected stakeholders; \emph{verification} examines whether the implemented system satisfies specified properties \cite{boehm1984}.
 
-\subsection{During development: test and record evidence}
-Training and CI/CD pipelines can run subgroup performance evaluations, privacy checks, robustness tests, and scenario-based assessments. Metamorphic testing is useful when a direct test oracle is unavailable: it evaluates whether a specified relation between transformed inputs and outputs holds \cite{chen2018}. Such relations require domain justification: blindly changing a sensitive attribute can inadvertently modify other legitimate variables or create unrealistic test cases. Each test should be linked to a particular approved requirement, with failures triggering investigation rather than merely optimizing the metric until it passes.
+Both should be repeated after significant changes to data, models, deployment conditions, or policy.
 
-\subsection{After deployment: monitor impacts and revisit requirements}
-Model Cards and release documentation should summarize intended use, known limitations, subgroup performance, and appropriate escalation channels \cite{mitchell2019}. Post-deployment monitoring should track changes in relevant outcome distributions, error patterns, fairness measures, complaints, incidents, and operator interventions. Alerts need owners and a documented response procedure. Drift detection is only an indicator of change: it does not by itself prove an ethical violation. Periodic stakeholder review closes the loop between observed impacts and future requirements.
+\subsection{Before Modeling: Validate Purposes, Data, and Requirements}
 
+At design time, teams should conduct stakeholder reviews, risk and impact assessments, dataset provenance checks, and feasibility analysis.
+
+A \emph{Datasheet for Datasets} can document collection and labeling limitations; an explicit requirements register should associate every ethical concern with a named owner and verification plan \cite{gebru2021,reisman2018}.
+
+Stakeholders should review not only numeric thresholds but also definitions of harm, acceptable exceptions, and remedy processes.
+
+\subsection{During Development: Test and Record Evidence}
+
+Training and CI/CD pipelines can run subgroup performance evaluations, privacy checks, robustness tests, and scenario-based assessments.
+
+Metamorphic testing is useful when a direct test oracle is unavailable: it evaluates whether a specified relation between transformed inputs and outputs holds \cite{chen2018}.
+
+Such relations require domain justification: blindly changing a sensitive attribute can inadvertently modify other legitimate variables or create unrealistic test cases.
+
+Each test should be linked to a particular approved requirement, with failures triggering investigation rather than merely optimizing the metric until it passes.
+
+\subsection{After Deployment: Monitor Impacts and Revisit Requirements}
+
+Model Cards and release documentation should summarize intended use, known limitations, subgroup performance, and appropriate escalation channels \cite{mitchell2019}.
+
+Post-deployment monitoring should track changes in relevant outcome distributions, error patterns, fairness measures, complaints, incidents, and operator interventions.
+
+Alerts need owners and a documented response procedure.
+
+Drift detection is only an indicator of change: it does not by itself prove an ethical violation.
+
+Periodic stakeholder review closes the loop between observed impacts and future requirements.
+
+% ========================================
+% TABLE 3
+% ========================================
 \begin{table}[htbp]
-\centering\small
-\caption{Lifecycle evidence and decision gates for ethical requirements (RQ3).}\label{tab:vv}
+\centering
+\small
+
+\caption{Lifecycle evidence and decision gates for ethical requirements (RQ3).}
+\label{tab:vv}
+
 \begin{tabularx}{\linewidth}{p{2.4cm}X X}
 \toprule
-\textbf{Stage} & \textbf{Review or test} & \textbf{Decision record}\\\midrule
-Pre-modeling & Stakeholder validation, impact assessment, dataset audit & Approved requirement, scope, owner, planned metric\\
-Development / CI & Subgroup, privacy, robustness, metamorphic tests & Test report, deviation, sign-off or remediation\\
-Deployment & Model documentation, appeal readiness, monitoring & Release approval, alert conditions, incident procedure\\
-Operation & Outcome review, complaints, drift and incident analysis & Reassessment and change requests linked to requirements\\
+
+\textbf{Stage}
+&
+\textbf{Review or test}
+&
+\textbf{Decision record}
+\\
+\midrule
+
+Pre-modeling
+&
+Stakeholder validation, impact assessment, dataset audit
+&
+Approved requirement, scope, owner, planned metric
+\\
+
+Development / CI
+&
+Subgroup, privacy, robustness, metamorphic tests
+&
+Test report, deviation, sign-off or remediation
+\\
+
+Deployment
+&
+Model documentation, appeal readiness, monitoring
+&
+Release approval, alert conditions, incident procedure
+\\
+
+Operation
+&
+Outcome review, complaints, drift and incident analysis
+&
+Reassessment and change requests linked to requirements
+\\
+
 \bottomrule
 \end{tabularx}
 \end{table}
 
+% ========================================
+% 7. DISCUSSION
+% ========================================
 \section{Discussion: Integrated Lifecycle and Limitations}
-The proposed lifecycle links the three questions in a feedback process: stakeholder elicitation (RQ2) informs context-dependent specifications (RQ1); specifications drive review and testing (RQ3); operational evidence and new harms feed back into stakeholder consultation (RQ2). A practical traceability record can use the fields \emph{stakeholder / value / potential harm / requirement / threshold rationale / verification method / evidence / owner / review date}. This process makes design choices inspectable but cannot eliminate fundamental disagreements about what constitutes an ethically appropriate outcome.
 
-The framework faces organizational barriers: resource constraints, limited access to affected groups, incomplete or restricted demographic data, computational cost, and the risk of superficial ethics checklists \cite{floridi2019,morley2020}. Requirements and measurement methods also vary across application domains. In particular, metrics designed for binary classifiers do not transfer automatically to generative or agentic systems.
+The proposed lifecycle links the three questions in a feedback process: stakeholder elicitation (RQ2) informs context-dependent specifications (RQ1); specifications drive review and testing (RQ3); operational evidence and new harms feed back into stakeholder consultation (RQ2).
 
-\textbf{Threats to validity.} \emph{Construct validity}: broad ethical terms may be operationalized too narrowly by measurable proxies. \emph{Selection bias}: the literature presented here is a structured synthesis without a reproducible screening audit; relevant studies may have been omitted. \emph{External validity}: techniques and thresholds must be adapted to real deployment contexts. \emph{Conclusion validity}: no empirical effectiveness, statistical superiority, or compliance certification can be inferred from the conceptual tables. These limitations should be addressed by a documented systematic review and empirical evaluation with practitioners and affected stakeholders \cite{wohlin2012}.
+A practical traceability record can use the fields:
 
+\begin{quote}
+\emph{
+Stakeholder / Value / Potential Harm /
+Requirement / Threshold Rationale /
+Verification Method / Evidence /
+Owner / Review Date
+}
+\end{quote}
+
+This process makes design choices inspectable but cannot eliminate fundamental disagreements about what constitutes an ethically appropriate outcome.
+
+The framework faces organizational barriers: resource constraints, limited access to affected groups, incomplete or restricted demographic data, computational cost, and the risk of superficial ethics checklists \cite{floridi2019,morley2020}.
+
+Requirements and measurement methods also vary across application domains.
+
+In particular, metrics designed for binary classifiers do not transfer automatically to generative or agentic systems.
+
+\subsection{Threats to Validity}
+
+\textbf{Construct validity:}
+Broad ethical terms may be operationalized too narrowly by measurable proxies.
+
+\textbf{Selection bias:}
+The literature presented here is a structured synthesis without a reproducible screening audit; relevant studies may have been omitted.
+
+\textbf{External validity:}
+Techniques and thresholds must be adapted to real deployment contexts.
+
+\textbf{Conclusion validity:}
+No empirical effectiveness, statistical superiority, or compliance certification can be inferred from the conceptual tables.
+
+These limitations should be addressed by a documented systematic review and empirical evaluation with practitioners and affected stakeholders \cite{wohlin2012}.
+
+% ========================================
+% 8. CONCLUSION
+% ========================================
 \section{Conclusion and Future Work}
-This paper synthesized ethical requirements engineering for AI-based software around three questions. For RQ1, six complementary categories---fairness, transparency, privacy, human oversight, safety, and accountability---provide a starting vocabulary for measurable and reviewable requirements. For RQ2, stakeholder mapping, VSD, ethics cards, misuse scenarios, and softgoal modeling offer complementary elicitation mechanisms. For RQ3, validation and verification should connect design-time review, development tests, deployment documentation, and post-release monitoring. The central proposal is a traceable feedback loop, not a validated universal compliance solution.
 
-Future work should (i) execute and report a reproducible literature-review protocol; (ii) evaluate requirement completeness, stakeholder participation, and implementation effort through case studies; and (iii) investigate automated generation of testable checks from reviewed ethical user stories, particularly for generative AI and autonomous agents. Empirical evaluation is required before making claims about effectiveness or generalizability.
+This paper synthesized ethical requirements engineering for AI-based software around three questions.
 
+For RQ1, six complementary categories---fairness, transparency, privacy, human oversight, safety, and accountability---provide a starting vocabulary for measurable and reviewable requirements.
+
+For RQ2, stakeholder mapping, VSD, ethics cards, misuse scenarios, and softgoal modeling offer complementary elicitation mechanisms.
+
+For RQ3, validation and verification should connect design-time review, development tests, deployment documentation, and post-release monitoring.
+
+The central proposal is a traceable feedback loop, not a validated universal compliance solution.
+
+Future work should:
+
+\begin{enumerate}
+    \item Execute and report a reproducible literature-review protocol.
+
+    \item Evaluate requirement completeness, stakeholder participation, and implementation effort through case studies.
+
+    \item Investigate automated generation of testable checks from reviewed ethical user stories, particularly for generative AI and autonomous agents.
+\end{enumerate}
+
+Empirical evaluation is required before making claims about effectiveness or generalizability.
+
+% ========================================
+% REFERENCES
+% ========================================
 \begin{thebibliography}{99}
 
 \bibitem[Arrieta et al.(2020)]{arrieta2020}
-Arrieta, A.B., D\'{\i}az-Rodr\'{\i}guez, N., Del Ser, J., Bennetot, A., Tabik, S., Barbado, A., Garcia, S., Gil-Lopez, S., Molina, D., Benjamins, R., Chatila, R. and Herrera, F. (2020) `Explainable Artificial Intelligence (XAI): Concepts, taxonomies, opportunities and challenges toward responsible AI', \textit{Information Fusion}, 58, pp. 82--115.
+Arrieta, A.B., D\'{\i}az-Rodr\'{\i}guez, N., Del Ser, J., Bennetot, A., Tabik, S., Barbado, A., Garcia, S., Gil-Lopez, S., Molina, D., Benjamins, R., Chatila, R. and Herrera, F. (2020).
+`Explainable Artificial Intelligence (XAI): Concepts, taxonomies, opportunities and challenges toward responsible AI'.
+\textit{Information Fusion}, 58, pp. 82--115.
 
 \bibitem[Boehm(1984)]{boehm1984}
-Boehm, B.W. (1984) `Verifying and validating software requirements and design specifications', \textit{IEEE Software}, 1(1), pp. 75--88.
+Boehm, B.W. (1984).
+`Verifying and validating software requirements and design specifications'.
+\textit{IEEE Software}, 1(1), pp. 75--88.
 
 \bibitem[Braun and Clarke(2006)]{braun2006}
-Braun, V. and Clarke, V. (2006) `Using thematic analysis in psychology', \textit{Qualitative Research in Psychology}, 3(2), pp. 77--101.
+Braun, V. and Clarke, V. (2006).
+`Using thematic analysis in psychology'.
+\textit{Qualitative Research in Psychology}, 3(2), pp. 77--101.
 
 \bibitem[Chen et al.(2018)]{chen2018}
-Chen, T.Y., Kuo, F.C., Liu, H., Poon, P.L., Towey, D., Tse, T.H. and Zhou, Z.Q. (2018) `Metamorphic testing: A review of challenges and opportunities', \textit{ACM Computing Surveys}, 51(1), pp. 1--27.
+Chen, T.Y., Kuo, F.C., Liu, H., Poon, P.L., Towey, D., Tse, T.H. and Zhou, Z.Q. (2018).
+`Metamorphic testing: A review of challenges and opportunities'.
+\textit{ACM Computing Surveys}, 51(1), pp. 1--27.
 
 \bibitem[Chung et al.(2000)]{chung2000}
-Chung, L., Nixon, B.A., Yu, E. and Mylopoulos, J. (2000) \textit{Non-Functional Requirements in Software Engineering}. Boston: Kluwer Academic Publishers.
+Chung, L., Nixon, B.A., Yu, E. and Mylopoulos, J. (2000).
+\textit{Non-Functional Requirements in Software Engineering}.
+Boston: Kluwer Academic Publishers.
 
 \bibitem[Dwork and Roth(2014)]{dwork2014}
-Dwork, C. and Roth, A. (2014) `The algorithmic foundations of differential privacy', \textit{Foundations and Trends in Theoretical Computer Science}, 9(3--4), pp. 211--407.
+Dwork, C. and Roth, A. (2014).
+`The algorithmic foundations of differential privacy'.
+\textit{Foundations and Trends in Theoretical Computer Science}, 9(3--4), pp. 211--407.
 
 \bibitem[Floridi et al.(2018)]{floridi2018}
-Floridi, L., Cowls, J., Beltrametti, M., Chatila, R., Chazerand, P., Dignum, V., Luetge, C., Madelin, R., Pagallo, U., Rossi, F., Schafer, B., Valcke, P. and Vayena, E. (2018) `AI4People---An ethical framework for a good AI society: Opportunities, risks, principles, and recommendations', \textit{Minds and Machines}, 28(4), pp. 689--707.
+Floridi, L., Cowls, J., Beltrametti, M., Chatila, R., Chazerand, P., Dignum, V., Luetge, C., Madelin, R., Pagallo, U., Rossi, F., Schafer, B., Valcke, P. and Vayena, E. (2018).
+`AI4People---An ethical framework for a good AI society: Opportunities, risks, principles, and recommendations'.
+\textit{Minds and Machines}, 28(4), pp. 689--707.
 
 \bibitem[Floridi(2019)]{floridi2019}
-Floridi, L. (2019) `Translating principles into practices of digital ethics: Five risks of being unethical', \textit{Philosophy \& Technology}, 32(2), pp. 185--193.
+Floridi, L. (2019).
+`Translating principles into practices of digital ethics: Five risks of being unethical'.
+\textit{Philosophy \& Technology}, 32(2), pp. 185--193.
 
 \bibitem[Friedman et al.(2013)]{friedman2013}
-Friedman, B., Kahn, P.H., Borning, A. and Huldtgren, A. (2013) `Value sensitive design and information systems', in Doorn, N., Schuurbiers, D., van de Poel, I. and Gorman, M.E. (eds.) \textit{Early Engagement and New Technologies: Opening Up the Laboratory}. Dordrecht: Springer, pp. 55--95.
+Friedman, B., Kahn, P.H., Borning, A. and Huldtgren, A. (2013).
+`Value sensitive design and information systems'.
+In \textit{Early Engagement and New Technologies: Opening Up the Laboratory}.
+Dordrecht: Springer, pp. 55--95.
 
 \bibitem[Gebru et al.(2021)]{gebru2021}
-Gebru, T., Morgenstern, J., Vecchione, B., Vaughan, J.W., Wallach, H., Daum\'{e} III, H. and Crawford, K. (2021) `Datasheets for datasets', \textit{Communications of the ACM}, 64(12), pp. 86--92.
+Gebru, T., Morgenstern, J., Vecchione, B., Vaughan, J.W., Wallach, H., Daum\'{e} III, H. and Crawford, K. (2021).
+`Datasheets for datasets'.
+\textit{Communications of the ACM}, 64(12), pp. 86--92.
 
 \bibitem[HLEG AI(2019)]{hleg2019}
-High-Level Expert Group on Artificial Intelligence (2019) \textit{Ethics Guidelines for Trustworthy AI}. Brussels: European Commission.
+High-Level Expert Group on Artificial Intelligence (2019).
+\textit{Ethics Guidelines for Trustworthy AI}.
+Brussels: European Commission.
 
 \bibitem[Horkoff(2019)]{horkoff2019}
-Horkoff, J. (2019) `Non-functional requirements for machine learning: Challenges and new directions', in \textit{Proceedings of the IEEE 27th International Requirements Engineering Conference (RE)}. Jeju: IEEE, pp. 386--391.
+Horkoff, J. (2019).
+`Non-functional requirements for machine learning: Challenges and new directions'.
+In \textit{Proceedings of the IEEE 27th International Requirements Engineering Conference (RE)}.
+IEEE, pp. 386--391.
 
 \bibitem[Jobin et al.(2019)]{jobin2019}
-Jobin, A., Ienca, M. and Vayena, E. (2019) `The global landscape of AI ethics guidelines', \textit{Nature Machine Intelligence}, 1(9), pp. 389--399.
+Jobin, A., Ienca, M. and Vayena, E. (2019).
+`The global landscape of AI ethics guidelines'.
+\textit{Nature Machine Intelligence}, 1(9), pp. 389--399.
 
 \bibitem[Kitchenham and Charters(2007)]{kitchenham2007}
-Kitchenham, B. and Charters, S. (2007) \textit{Guidelines for performing Systematic Literature Reviews in Software Engineering}. EBSE Technical Report EBSE-2007-01. Keele University and University of Durham.
+Kitchenham, B. and Charters, S. (2007).
+\textit{Guidelines for Performing Systematic Literature Reviews in Software Engineering}.
+EBSE Technical Report EBSE-2007-01.
 
 \bibitem[Kleinberg et al.(2017)]{kleinberg2017}
-Kleinberg, J., Mullainathan, S. and Raghavan, M. (2017) `Inherent trade-offs in the fair determination of risk scores', in \textit{Proceedings of the 8th Innovations in Theoretical Computer Science Conference (ITCS)}, 67, pp. 43:1--43:23.
+Kleinberg, J., Mullainathan, S. and Raghavan, M. (2017).
+`Inherent trade-offs in the fair determination of risk scores'.
+In \textit{Proceedings of the 8th Innovations in Theoretical Computer Science Conference (ITCS)}, 67, pp. 43:1--43:23.
 
 \bibitem[Lundberg and Lee(2017)]{lundberg2017}
-Lundberg, S.M. and Lee, S.I. (2017) `A unified approach to interpreting model predictions', in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 30, pp. 4765--4774.
+Lundberg, S.M. and Lee, S.I. (2017).
+`A unified approach to interpreting model predictions'.
+In \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 30, pp. 4765--4774.
 
 \bibitem[Mehrabi et al.(2021)]{mehrabi2021}
-Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K. and Galstyan, A. (2021) `A survey on bias and fairness in machine learning', \textit{ACM Computing Surveys}, 54(6), pp. 1--35.
+Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K. and Galstyan, A. (2021).
+`A survey on bias and fairness in machine learning'.
+\textit{ACM Computing Surveys}, 54(6), pp. 1--35.
 
 \bibitem[Mitchell et al.(2019)]{mitchell2019}
-Mitchell, M., Wu, S., Zaldivar, A., Barnes, P., Vasserman, L., Hutchinson, B., Spitzer, E., Raji, I.D. and Gebru, T. (2019) `Model cards for model reporting', in \textit{Proceedings of the Conference on Fairness, Accountability, and Transparency (FAT*)}. New York: ACM, pp. 220--229.
+Mitchell, M., Wu, S., Zaldivar, A., Barnes, P., Vasserman, L., Hutchinson, B., Spitzer, E., Raji, I.D. and Gebru, T. (2019).
+`Model cards for model reporting'.
+In \textit{Proceedings of the Conference on Fairness, Accountability, and Transparency (FAT*)}.
+ACM, pp. 220--229.
 
 \bibitem[Mittelstadt(2019)]{mittelstadt2019}
-Mittelstadt, B. (2019) `Principles alone cannot guarantee ethical AI', \textit{Nature Machine Intelligence}, 1(11), pp. 501--507.
+Mittelstadt, B. (2019).
+`Principles alone cannot guarantee ethical AI'.
+\textit{Nature Machine Intelligence}, 1(11), pp. 501--507.
 
 \bibitem[Morley et al.(2020)]{morley2020}
-Morley, J., Floridi, L., Kinsey, L. and Elhalal, A. (2020) `From what to how: An initial review of publicly available AI ethics tools, methods and research to translate principles into practices', \textit{Science and Engineering Ethics}, 26(4), pp. 2141--2168.
+Morley, J., Floridi, L., Kinsey, L. and Elhalal, A. (2020).
+`From what to how: An initial review of publicly available AI ethics tools, methods and research to translate principles into practices'.
+\textit{Science and Engineering Ethics}, 26(4), pp. 2141--2168.
 
 \bibitem[Reisman et al.(2018)]{reisman2018}
-Reisman, D., Schultz, J., Crawford, K. and Whittaker, M. (2018) \textit{Algorithmic Impact Assessments: A Practical Framework for Public Agency Accountability}. New York: AI Now Institute.
+Reisman, D., Schultz, J., Crawford, K. and Whittaker, M. (2018).
+\textit{Algorithmic Impact Assessments: A Practical Framework for Public Agency Accountability}.
+New York: AI Now Institute.
 
 \bibitem[Umbrello and van de Poel(2021)]{umbrello2021}
-Umbrello, S. and van de Poel, I. (2021) `Mapping value sensitive design onto AI for social good principles', \textit{AI and Ethics}, 1(3), pp. 283--296.
+Umbrello, S. and van de Poel, I. (2021).
+`Mapping value sensitive design onto AI for social good principles'.
+\textit{AI and Ethics}, 1(3), pp. 283--296.
 
 \bibitem[Vakkuri et al.(2021)]{vakkuri2021}
-Vakkuri, V., Kemell, K.K., Jantunen, M., Halme, E. and Abrahamsson, P. (2021) `ECCOLA---A method for implementing ethically aligned AI systems', \textit{Journal of Systems and Software}, 182, p. 111067.
+Vakkuri, V., Kemell, K.K., Jantunen, M., Halme, E. and Abrahamsson, P. (2021).
+`ECCOLA---A method for implementing ethically aligned AI systems'.
+\textit{Journal of Systems and Software}, 182, p. 111067.
 
 \bibitem[Vogelsang and Borg(2019)]{vogelsang2019}
-Vogelsang, A. and Borg, M. (2019) `Requirements engineering for machine learning: Perspectives from data scientists', in \textit{Proceedings of the IEEE 27th International Requirements Engineering Conference Workshops (REW)}. IEEE, pp. 245--251.
+Vogelsang, A. and Borg, M. (2019).
+`Requirements engineering for machine learning: Perspectives from data scientists'.
+In \textit{Proceedings of the IEEE 27th International Requirements Engineering Conference Workshops (REW)}.
+IEEE, pp. 245--251.
 
 \bibitem[Wohlin et al.(2012)]{wohlin2012}
-Wohlin, C., Runeson, P., H\"{o}st, M., Ohlsson, M.C., Regnell, B. and Wessl\'{e}n, A. (2012) \textit{Experimentation in Software Engineering}. Berlin, Heidelberg: Springer.
+Wohlin, C., Runeson, P., H\"{o}st, M., Ohlsson, M.C., Regnell, B. and Wessl\'{e}n, A. (2012).
+\textit{Experimentation in Software Engineering}.
+Berlin, Heidelberg: Springer.
 
 \bibitem[Yu(1997)]{yu1997}
-Yu, E.S.K. (1997) `Towards modelling and reasoning support for early-phase requirements engineering', in \textit{Proceedings of the 3rd IEEE International Symposium on Requirements Engineering}. IEEE, pp. 226--235.
+Yu, E.S.K. (1997).
+`Towards modelling and reasoning support for early-phase requirements engineering'.
+In \textit{Proceedings of the 3rd IEEE International Symposium on Requirements Engineering}.
+IEEE, pp. 226--235.
 
 \bibitem[Zhang et al.(2020)]{zhang2020}
-Zhang, J.M., Harman, M., Ma, L. and Liu, Y. (2020) `Machine learning testing: Survey, landscapes and horizons', \textit{IEEE Transactions on Software Engineering}, 48(1), pp. 1--36.
+Zhang, J.M., Harman, M., Ma, L. and Liu, Y. (2020).
+`Machine learning testing: Survey, landscapes and horizons'.
+\textit{IEEE Transactions on Software Engineering}, 48(1), pp. 1--36.
 
 \end{thebibliography}
+
 \end{document}
